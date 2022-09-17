@@ -6,7 +6,7 @@
  * - Otherwise this is a prehook for functions/setters
  * @param {function, undefined} postHook This becomes a posthook for functions/getters
  */
-export default function hook(container, name, preHookOrAllInOne, postHook = undefined) {
+export function hook(container, name, preHookOrAllInOne, postHook = undefined) {
     let value;
     let declaredOnPrototype = false;
     if (typeof container == "function") {
@@ -31,8 +31,8 @@ export default function hook(container, name, preHookOrAllInOne, postHook = unde
         (declaredOnPrototype ? container["prototype"] : container)[name] = hook;
     } else {
         Object.defineProperty(container, name, {
-            get: preHookOrAllInOne ? () => { return postHook(value) } : () => value,
-            set: preHookOrAllInOne ? () => { value = preHookOrAllInOne(value) } : undefined,
+            get: preHookOrAllInOne ? () => { return (postHook||(val=>val))(value) } : () => value,
+            set: preHookOrAllInOne ? () => { value = (preHookOrAllInOne||(()=>{}))(value) } : undefined,
         });
     }
 }
